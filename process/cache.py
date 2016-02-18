@@ -45,20 +45,20 @@ def cache(input_name, output_name, cache_name, blat, blon, depth):
             with open(cache_name, 'w') as output_cache:
                 reader = csv.reader(input_file, delimiter='\t')
                 city_list = sorted(reader, key=lambda row: int(row[0]), reverse=False)
-    
+
                 caching = 0
                 caching_max = blat * blon * 4
                 while (caching < caching_max):
                     nset = neighbors( Bucket(caching, blat, blon), depth )
                     lset = search(city_list, nset)
-                    staging = [str(caching), form(lset)]
+                    staging = [form(lset)]
                     cache_writer = csv.writer(output_cache, delimiter='\t')
                     cache_writer.writerow(staging)
                     caching += 1
                     # write : index, search city list,
                     # list of line numbers in city data -- empty if no matching cities
                     # eventually add region data to cache
-    
+
                 city_writer = csv.writer(output_cities, delimiter='\t')
                 for row in city_list:
                     city_writer.writerow(row)
@@ -72,13 +72,13 @@ def form(lset):
             staging += str(x)
             first = False
         else:
-            staging += "," + str(x) 
+            staging += "," + str(x)
     return staging
-    
+
 
 def search(city_list, nset):
     lset = set()
-    i = 0 
+    i = 0
     for row in city_list:
         if int(row[0]) in nset:
             lset.add(i)
@@ -90,7 +90,7 @@ def search(city_list, nset):
     return lset
 
 def neighbors(center, depth):
-    # center is a bucket 
+    # center is a bucket
     # depth layers from center to go
     # returns set of region indices
     nset = {center.index}
@@ -110,7 +110,7 @@ def neighbors(center, depth):
         depth -= 1
     return nset
 
-class Bucket: 
+class Bucket:
     def __init__(self, index, blat, blon):
         self.index = index
         self.blat = blat
@@ -122,7 +122,7 @@ class Bucket:
     def same_quad_of(self, maybe_i):
         maybe_buck = Bucket(maybe_i, self.blat, self.blon)
         return self.get_quad() == maybe_buck.get_quad()
- 
+
     def get_row(self):
         return self.index // self.blon + 1 * self.get_lat_mult()
 
@@ -146,25 +146,25 @@ class Bucket:
 
     def get_n(self):
         return self.get_vert(True)
- 
+
     def get_s(self):
         return self.get_vert(False)
 
     def get_vert(self, north):
         direction = 1
         if north == False:
-            direction = -1        
+            direction = -1
         maybe_v = self.index + self.blon * direction * self.get_lat_mult()
         if self.same_quad_of(maybe_v):
             return maybe_v
         else:
             mult = self.get_lat_mult() * self.get_lon_mult()
-            qsize = self.blat * self.blon 
+            qsize = self.blat * self.blon
             v = (self.index - qsize * mult) % (qsize * 4)
             return v
 
     def get_e(self):
-        return self.get_horz(True) 
+        return self.get_horz(True)
 
     def get_w(self):
         return self.get_horz(False)

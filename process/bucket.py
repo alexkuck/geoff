@@ -51,11 +51,11 @@ def bucket(input_name, output_name, blat, blon):
 def get_index(blat, blon, lat, lon):
     blat_deg = 90 / blat        # degrees per latitude bucket
     blon_deg = 180 / blon       # degrees per longitude bucket
-    alat = int(abs(lat))        # adjusted lat of city
-    alon = int(abs(lon))        # adjusted lon of city
-    
-    m = alat / blat_deg         # index latitude bucket
-    n = alon / blon_deg         # index longitude bucket
+    alat = abs(lat)             # adjusted lat of city
+    alon = abs(lon)             # adjusted lon of city
+
+    m = alat // blat_deg        # index latitude bucket
+    n = alon // blon_deg        # index longitude bucket
     qi = m*blon + n             # quadrant index of city lat, lon
 
     bpq = blat * blon           # buckets per quadrant
@@ -63,15 +63,15 @@ def get_index(blat, blon, lat, lon):
     index = qi + quad * bpq     # global index of city lat, lon
 
     return int(index)
-    
+
 def get_quad(lat, lon):
-    if lat > 0:
-        if lon > 0:
-            return 0    # north west
-        return 3        # south west
-    if lon > 0:
-        return 1        # north east
-    return 2            # sound east
+    if lat >= 0:
+        if lon >= 0:
+            return 0    # north east
+        return 1        # north west
+    if lon >= 0:
+        return 3        # south east
+    return 2            # south west
 
 def write_row(w, i, row):
     staging = []
